@@ -25,7 +25,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     if (!mounted) return;
     result.fold(
       (_) => context.go(AppRouter.login),
-      (_) => context.go(AppRouter.home),
+      (user) {
+        ref.read(currentUserProvider.notifier).state = user;
+        context.go(AppRouter.home);
+      },
     );
   }
 

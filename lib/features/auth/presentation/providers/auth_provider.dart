@@ -15,6 +15,9 @@ import '../../domain/usecases/validate_token_usecase.dart';
 
 part 'auth_provider.freezed.dart';
 
+// Current user
+final currentUserProvider = StateProvider<UserEntity?>((ref) => null);
+
 // DI chain
 final authDatasourceProvider = Provider<AuthDatasource>((ref) {
   if (AppConfig.instance.useMock) return AuthMockDatasource();
@@ -52,19 +55,23 @@ class LoginState with _$LoginState {
 // Notifier
 class LoginNotifier extends StateNotifier<LoginState> {
   final LoginUseCase _loginUseCase;
+  final Ref _ref;
 
-  LoginNotifier(this._loginUseCase) : super(const LoginState.initial());
+  LoginNotifier(this._loginUseCase, this._ref) : super(const LoginState.initial());
 
   Future<void> login({required String username, required String pin}) async {
     state = const LoginState.loading();
     final result = await _loginUseCase(username: username, pin: pin);
     state = result.fold(
       (failure) => LoginState.error(failure.message),
-      (user) => LoginState.success(user),
+      (user) {
+        _ref.read(currentUserProvider.notifier).state = user;
+        return LoginState.success(user);
+      },
     );
   }
 }
 
 final loginProvider = StateNotifierProvider<LoginNotifier, LoginState>(
-  (ref) => LoginNotifier(ref.read(loginUseCaseProvider)),
+  (ref) => LoginNotifier(ref.read(loginUseCaseProvider), ref),
 );

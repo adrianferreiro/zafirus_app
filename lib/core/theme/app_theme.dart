@@ -31,6 +31,7 @@ class AppTheme {
         borderSide: const BorderSide(color: Colors.white),
       ),
     ),
+    drawerTheme: const DrawerThemeData(backgroundColor: Color(0xFF0A1628)),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         backgroundColor: Colors.white,
