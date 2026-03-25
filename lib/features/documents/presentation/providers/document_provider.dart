@@ -11,7 +11,6 @@ import '../../domain/repositories/document_repository.dart';
 import '../../domain/usecases/get_documents_usecase.dart';
 import 'document_state.dart';
 
-// DI chain
 final documentDatasourceProvider = Provider<DocumentDatasource>((ref) {
   if (AppConfig.instance.useMock) return DocumentMockDatasource();
   return DocumentRemoteDatasource(ref.read(dioClientProvider));
@@ -25,27 +24,27 @@ final getDocumentsUseCaseProvider = Provider<GetDocumentsUseCase>(
   (ref) => GetDocumentsUseCase(ref.read(documentRepositoryProvider)),
 );
 
-class DocumentsNotifier extends StateNotifier<DocumentsViewState> {
+class DocumentsNotifier extends StateNotifier<DocumentsState> {
   final GetDocumentsUseCase _getDocuments;
 
-  DocumentsNotifier(this._getDocuments) : super(const DocumentsViewState());
+  DocumentsNotifier(this._getDocuments) : super(DocumentsState.initialState);
 
   Future<void> load(int employeeId) async {
-    state = state.copyWith(status: AppViewState.loading);
+    state = state.copyWith(viewState: AppViewState.loading);
     final result = await _getDocuments(employeeId);
     result.fold(
       (failure) => state = state.copyWith(
-        status: AppViewState.error,
+        viewState: AppViewState.error,
         errorMessage: failure.message,
       ),
       (docs) => state = state.copyWith(
-        status: docs.isEmpty ? AppViewState.empty : AppViewState.success,
-        data: docs,
+        viewState: docs.isEmpty ? AppViewState.empty : AppViewState.success,
+        documents: docs,
       ),
     );
   }
 }
 
-final documentsProvider = StateNotifierProvider<DocumentsNotifier, DocumentsViewState>(
+final documentsProvider = StateNotifierProvider<DocumentsNotifier, DocumentsState>(
   (ref) => DocumentsNotifier(ref.read(getDocumentsUseCaseProvider)),
 );

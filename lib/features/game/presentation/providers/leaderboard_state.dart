@@ -1,24 +1,19 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import '../../../../core/utils/app_view_state.dart';
 import '../../domain/entities/leaderboard_entry_entity.dart';
 
-class LeaderboardViewState {
-  final AppViewState status;
-  final List<LeaderboardEntryEntity> data;
-  final String? errorMessage;
+part 'leaderboard_state.freezed.dart';
 
-  const LeaderboardViewState({
-    this.status = AppViewState.idle,
-    this.data = const [],
-    this.errorMessage,
-  });
+@freezed
+class LeaderboardState with _$LeaderboardState {
+  const LeaderboardState._();
 
-  LeaderboardViewState copyWith({
-    AppViewState? status,
-    List<LeaderboardEntryEntity>? data,
-    String? errorMessage,
-  }) => LeaderboardViewState(
-        status: status ?? this.status,
-        data: data ?? this.data,
-        errorMessage: errorMessage ?? this.errorMessage,
-      );
+  const factory LeaderboardState({
+    @Default(AppViewState.idle) AppViewState viewState,
+    @Default([]) List<LeaderboardEntryEntity> entries,
+    @Default(null) String? errorMessage,
+  }) = _LeaderboardState;
+
+  static LeaderboardState get initialState => const LeaderboardState();
 }

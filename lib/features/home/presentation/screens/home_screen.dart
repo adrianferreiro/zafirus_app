@@ -117,15 +117,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             SizedBox(
               height: 68,
               child: AppStateHandler(
-                state: birthdaysState.status,
+                state: birthdaysState.viewState,
                 useSkeletonizer: true,
                 emptyMessage: 'No hay cumpleaños hoy',
                 errorMessage:
                     birthdaysState.errorMessage ??
                     'No se pudieron cargar los cumpleaños',
                 onRetry: () => ref.read(birthdaysProvider.notifier).load(),
-                onSuccess: (_) => birthdaysState.data.isNotEmpty
-                    ? _BirthdayList(birthdays: birthdaysState.data)
+                onSuccess: (_) => birthdaysState.birthdays.isNotEmpty
+                    ? _BirthdayList(birthdays: birthdaysState.birthdays)
                     : _BirthdayListPlaceholder(),
               ),
             ),

@@ -11,7 +11,6 @@ import '../../domain/repositories/employee_repository.dart';
 import '../../domain/usecases/get_employee_usecase.dart';
 import 'employee_state.dart';
 
-// DI chain
 final employeeDatasourceProvider = Provider<EmployeeDatasource>((ref) {
   if (AppConfig.instance.useMock) return EmployeeMockDatasource();
   return EmployeeRemoteDatasource(ref.read(dioClientProvider));
@@ -25,27 +24,27 @@ final getEmployeeUseCaseProvider = Provider<GetEmployeeUseCase>(
   (ref) => GetEmployeeUseCase(ref.read(employeeRepositoryProvider)),
 );
 
-class EmployeeNotifier extends StateNotifier<EmployeeViewState> {
+class EmployeeNotifier extends StateNotifier<EmployeeState> {
   final GetEmployeeUseCase _getEmployee;
 
-  EmployeeNotifier(this._getEmployee) : super(const EmployeeViewState());
+  EmployeeNotifier(this._getEmployee) : super(EmployeeState.initialState);
 
   Future<void> load(int employeeId) async {
-    state = state.copyWith(status: AppViewState.loading);
+    state = state.copyWith(viewState: AppViewState.loading);
     final result = await _getEmployee(employeeId);
     result.fold(
       (failure) => state = state.copyWith(
-        status: AppViewState.error,
+        viewState: AppViewState.error,
         errorMessage: failure.message,
       ),
       (employee) => state = state.copyWith(
-        status: AppViewState.success,
-        data: employee,
+        viewState: AppViewState.success,
+        employee: employee,
       ),
     );
   }
 }
 
-final employeeProvider = StateNotifierProvider<EmployeeNotifier, EmployeeViewState>(
+final employeeProvider = StateNotifierProvider<EmployeeNotifier, EmployeeState>(
   (ref) => EmployeeNotifier(ref.read(getEmployeeUseCaseProvider)),
 );

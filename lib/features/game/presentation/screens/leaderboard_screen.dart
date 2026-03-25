@@ -27,13 +27,13 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Ranking')),
       body: AppStateHandler(
-        state: state.status,
+        state: state.viewState,
         useSkeletonizer: true,
         errorMessage: state.errorMessage,
         emptyMessage: 'No hay ranking disponible',
         onRetry: () => ref.read(leaderboardProvider.notifier).load(),
-        onSuccess: (_) => state.data.isNotEmpty
-            ? _LeaderboardContent(entries: state.data)
+        onSuccess: (_) => state.entries.isNotEmpty
+            ? _LeaderboardContent(entries: state.entries)
             : _LeaderboardPlaceholder(),
       ),
     );

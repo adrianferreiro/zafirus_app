@@ -34,7 +34,7 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Mis Documentos')),
       body: AppStateHandler(
-        state: state.status,
+        state: state.viewState,
         useSkeletonizer: true,
         errorMessage: state.errorMessage,
         emptyMessage: 'No hay documentos',
@@ -42,13 +42,13 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
           final user = ref.read(currentUserProvider);
           if (user != null) ref.read(documentsProvider.notifier).load(user.employeeId);
         },
-        onSuccess: (_) => state.data.isNotEmpty
+        onSuccess: (_) => state.documents.isNotEmpty
             ? ListView.separated(
                 padding: const EdgeInsets.all(16),
-                itemCount: state.data.length,
+                itemCount: state.documents.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 8),
                 itemBuilder: (context, index) =>
-                    _DocumentTile(document: state.data[index]),
+                    _DocumentTile(document: state.documents[index]),
               )
             : _DocumentsPlaceholder(),
       ),

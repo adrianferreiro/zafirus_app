@@ -33,15 +33,15 @@ class _EmployeeScreenState extends ConsumerState<EmployeeScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Mi Perfil')),
       body: AppStateHandler(
-        state: state.status,
+        state: state.viewState,
         useSkeletonizer: true,
         errorMessage: state.errorMessage,
         onRetry: () {
           final user = ref.read(currentUserProvider);
           if (user != null) ref.read(employeeProvider.notifier).load(user.employeeId);
         },
-        onSuccess: (_) => state.data != null
-            ? _EmployeeDetail(employee: state.data!)
+        onSuccess: (_) => state.employee != null
+            ? _EmployeeDetail(employee: state.employee!)
             : _EmployeeDetailPlaceholder(),
       ),
     );

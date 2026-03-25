@@ -11,7 +11,6 @@ import '../../domain/repositories/birthday_repository.dart';
 import '../../domain/usecases/get_today_birthdays_usecase.dart';
 import 'birthday_state.dart';
 
-// DI chain
 final birthdayDatasourceProvider = Provider<BirthdayDatasource>((ref) {
   if (AppConfig.instance.useMock) return BirthdayMockDatasource();
   return BirthdayRemoteDatasource(ref.read(dioClientProvider));
@@ -25,27 +24,27 @@ final getTodayBirthdaysUseCaseProvider = Provider<GetTodayBirthdaysUseCase>(
   (ref) => GetTodayBirthdaysUseCase(ref.read(birthdayRepositoryProvider)),
 );
 
-class BirthdaysNotifier extends StateNotifier<BirthdaysViewState> {
+class BirthdaysNotifier extends StateNotifier<BirthdaysState> {
   final GetTodayBirthdaysUseCase _getBirthdays;
 
-  BirthdaysNotifier(this._getBirthdays) : super(const BirthdaysViewState());
+  BirthdaysNotifier(this._getBirthdays) : super(BirthdaysState.initialState);
 
   Future<void> load() async {
-    state = state.copyWith(status: AppViewState.loading);
+    state = state.copyWith(viewState: AppViewState.loading);
     final result = await _getBirthdays();
     result.fold(
       (failure) => state = state.copyWith(
-        status: AppViewState.error,
+        viewState: AppViewState.error,
         errorMessage: failure.message,
       ),
       (birthdays) => state = state.copyWith(
-        status: birthdays.isEmpty ? AppViewState.empty : AppViewState.success,
-        data: birthdays,
+        viewState: birthdays.isEmpty ? AppViewState.empty : AppViewState.success,
+        birthdays: birthdays,
       ),
     );
   }
 }
 
-final birthdaysProvider = StateNotifierProvider<BirthdaysNotifier, BirthdaysViewState>(
+final birthdaysProvider = StateNotifierProvider<BirthdaysNotifier, BirthdaysState>(
   (ref) => BirthdaysNotifier(ref.read(getTodayBirthdaysUseCaseProvider)),
 );

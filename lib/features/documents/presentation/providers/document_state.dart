@@ -1,24 +1,19 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import '../../../../core/utils/app_view_state.dart';
 import '../../domain/entities/document_entity.dart';
 
-class DocumentsViewState {
-  final AppViewState status;
-  final List<DocumentEntity> data;
-  final String? errorMessage;
+part 'document_state.freezed.dart';
 
-  const DocumentsViewState({
-    this.status = AppViewState.idle,
-    this.data = const [],
-    this.errorMessage,
-  });
+@freezed
+class DocumentsState with _$DocumentsState {
+  const DocumentsState._();
 
-  DocumentsViewState copyWith({
-    AppViewState? status,
-    List<DocumentEntity>? data,
-    String? errorMessage,
-  }) => DocumentsViewState(
-        status: status ?? this.status,
-        data: data ?? this.data,
-        errorMessage: errorMessage ?? this.errorMessage,
-      );
+  const factory DocumentsState({
+    @Default(AppViewState.idle) AppViewState viewState,
+    @Default([]) List<DocumentEntity> documents,
+    @Default(null) String? errorMessage,
+  }) = _DocumentsState;
+
+  static DocumentsState get initialState => const DocumentsState();
 }

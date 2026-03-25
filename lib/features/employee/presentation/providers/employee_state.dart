@@ -1,24 +1,19 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import '../../../../core/utils/app_view_state.dart';
 import '../../domain/entities/employee_entity.dart';
 
-class EmployeeViewState {
-  final AppViewState status;
-  final EmployeeEntity? data;
-  final String? errorMessage;
+part 'employee_state.freezed.dart';
 
-  const EmployeeViewState({
-    this.status = AppViewState.idle,
-    this.data,
-    this.errorMessage,
-  });
+@freezed
+class EmployeeState with _$EmployeeState {
+  const EmployeeState._();
 
-  EmployeeViewState copyWith({
-    AppViewState? status,
-    EmployeeEntity? data,
-    String? errorMessage,
-  }) => EmployeeViewState(
-        status: status ?? this.status,
-        data: data ?? this.data,
-        errorMessage: errorMessage ?? this.errorMessage,
-      );
+  const factory EmployeeState({
+    @Default(AppViewState.idle) AppViewState viewState,
+    @Default(null) EmployeeEntity? employee,
+    @Default(null) String? errorMessage,
+  }) = _EmployeeState;
+
+  static EmployeeState get initialState => const EmployeeState();
 }

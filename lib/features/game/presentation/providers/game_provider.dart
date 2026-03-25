@@ -14,7 +14,6 @@ import '../../domain/usecases/submit_vote_usecase.dart';
 import 'leaderboard_state.dart';
 import 'play_state.dart';
 
-// DI chain
 final gameDatasourceProvider = Provider<GameDatasource>((ref) {
   if (AppConfig.instance.useMock) return GameMockDatasource();
   return GameRemoteDatasource(ref.read(dioClientProvider));
@@ -37,28 +36,28 @@ final submitVoteUseCaseProvider = Provider<SubmitVoteUseCase>(
 );
 
 // Leaderboard
-class LeaderboardNotifier extends StateNotifier<LeaderboardViewState> {
+class LeaderboardNotifier extends StateNotifier<LeaderboardState> {
   final GetLeaderboardUseCase _getLeaderboard;
 
-  LeaderboardNotifier(this._getLeaderboard) : super(const LeaderboardViewState());
+  LeaderboardNotifier(this._getLeaderboard) : super(LeaderboardState.initialState);
 
   Future<void> load() async {
-    state = state.copyWith(status: AppViewState.loading);
+    state = state.copyWith(viewState: AppViewState.loading);
     final result = await _getLeaderboard();
     result.fold(
       (failure) => state = state.copyWith(
-        status: AppViewState.error,
+        viewState: AppViewState.error,
         errorMessage: failure.message,
       ),
       (entries) => state = state.copyWith(
-        status: entries.isEmpty ? AppViewState.empty : AppViewState.success,
-        data: entries,
+        viewState: entries.isEmpty ? AppViewState.empty : AppViewState.success,
+        entries: entries,
       ),
     );
   }
 }
 
-final leaderboardProvider = StateNotifierProvider<LeaderboardNotifier, LeaderboardViewState>(
+final leaderboardProvider = StateNotifierProvider<LeaderboardNotifier, LeaderboardState>(
   (ref) => LeaderboardNotifier(ref.read(getLeaderboardUseCaseProvider)),
 );
 
