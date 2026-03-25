@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/theme/app_theme.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../domain/entities/document_entity.dart';
 import '../providers/document_provider.dart';
@@ -77,20 +78,19 @@ class _DocumentTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Card(
-      color: Colors.white.withValues(alpha: 0.08),
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
-        leading: Icon(_icon, color: Colors.white70),
+        leading: Icon(_icon, color: colors.primary),
         title: Text(
           document.name,
-          style: const TextStyle(color: Colors.white, fontSize: 14),
+          style: TextStyle(color: colors.onPrimary, fontSize: 14),
         ),
         subtitle: _subtitle != null
-            ? Text(_subtitle!, style: const TextStyle(color: Colors.white54, fontSize: 12))
+            ? Text(_subtitle!, style: TextStyle(color: AppColors.onPrimarySubtle, fontSize: 12))
             : null,
-        trailing: const Icon(Icons.open_in_new, size: 18, color: Colors.white54),
+        trailing: Icon(Icons.open_in_new, size: 18, color: AppColors.onPrimarySubtle),
         onTap: _open,
       ),
     );

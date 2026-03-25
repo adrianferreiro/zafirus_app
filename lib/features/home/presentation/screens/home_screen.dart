@@ -3,10 +3,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_router.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../birthdays/domain/entities/birthday_entity.dart';
+import '../../../birthdays/presentation/providers/birthday_provider.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => ref.read(birthdaysProvider.notifier).load());
+  }
 
   Future<void> _onLogout(BuildContext context, WidgetRef ref) async {
     await ref.read(logoutUseCaseProvider).call();
@@ -15,8 +29,10 @@ class HomeScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
+    final birthdaysState = ref.watch(birthdaysProvider);
+    final colors = Theme.of(context).colorScheme;
     final initials = user != null
         ? '${user.name[0]}${user.lastName[0]}'.toUpperCase()
         : '??';
@@ -27,26 +43,29 @@ class HomeScreen extends ConsumerWidget {
         child: Column(
           children: [
             UserAccountsDrawerHeader(
-              decoration: const BoxDecoration(color: Color(0xFF142840)),
+              decoration: BoxDecoration(color: AppColors.primaryLight),
               currentAccountPicture: CircleAvatar(
-                backgroundColor: Colors.white,
+                backgroundColor: colors.primary,
                 radius: 36,
                 child: Text(
                   initials,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0D1F35),
+                    color: colors.onPrimary,
                   ),
                 ),
               ),
               accountName: Text(
                 user != null ? '${user.name} ${user.lastName}' : '',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: colors.onPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               accountEmail: Text(
                 user?.email ?? '',
-                style: const TextStyle(color: Colors.white70),
+                style: TextStyle(color: AppColors.onPrimaryMuted),
               ),
             ),
             const Spacer(),
@@ -78,16 +97,22 @@ class HomeScreen extends ConsumerWidget {
             Text(
               'Hola, ${user?.name ?? ''}',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+                color: colors.onPrimary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               '¿Qué necesitás hoy?',
-              style: TextStyle(color: Colors.white54, fontSize: 14),
+              style: TextStyle(color: AppColors.onPrimarySubtle, fontSize: 14),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
+            birthdaysState.maybeWhen(
+              loaded: (birthdays) => birthdays.isNotEmpty
+                  ? _BirthdaysSection(birthdays: birthdays)
+                  : const SizedBox.shrink(),
+              orElse: () => const SizedBox.shrink(),
+            ),
             Expanded(
               child: GridView.count(
                 crossAxisCount: 2,
@@ -115,6 +140,111 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
+class _BirthdaysSection extends StatelessWidget {
+  final List<BirthdayEntity> birthdays;
+
+  const _BirthdaysSection({required this.birthdays});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.cake, color: colors.primary, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'Cumpleaños hoy',
+              style: TextStyle(
+                color: colors.onPrimary,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 80,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: birthdays.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            itemBuilder: (context, index) =>
+                _BirthdayChip(birthday: birthdays[index]),
+          ),
+        ),
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+}
+
+class _BirthdayChip extends StatelessWidget {
+  final BirthdayEntity birthday;
+
+  const _BirthdayChip({required this.birthday});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final initials = '${birthday.firstName[0]}${birthday.lastName[0]}'
+        .toUpperCase();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: colors.primary.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colors.primary.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircleAvatar(
+            radius: 20,
+            backgroundColor: colors.primary,
+            child: Text(
+              initials,
+              style: TextStyle(
+                color: colors.onPrimary,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                birthday.fullName,
+                style: TextStyle(
+                  color: colors.onPrimary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              if (birthday.position != null)
+                Text(
+                  birthday.position!,
+                  style: TextStyle(
+                    color: AppColors.onPrimarySubtle,
+                    fontSize: 11,
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _QuickCard extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -128,24 +258,26 @@ class _QuickCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.08),
+          color: colors.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          border: Border.all(color: colors.primary.withValues(alpha: 0.3)),
         ),
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(icon, color: Colors.white70, size: 28),
+            Icon(icon, color: colors.primary, size: 28),
             Text(
               label,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: colors.onPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),

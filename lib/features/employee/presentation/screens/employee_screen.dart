@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/app_theme.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../domain/entities/employee_entity.dart';
 import '../providers/employee_provider.dart';
@@ -47,6 +48,7 @@ class _EmployeeDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     final initials = '${employee.firstName[0]}${employee.lastName[0]}'.toUpperCase();
 
     return ListView(
@@ -55,13 +57,13 @@ class _EmployeeDetail extends StatelessWidget {
         Center(
           child: CircleAvatar(
             radius: 48,
-            backgroundColor: Colors.white,
+            backgroundColor: colors.primary,
             child: Text(
               initials,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF0D1F35),
+                color: colors.onPrimary,
               ),
             ),
           ),
@@ -78,7 +80,7 @@ class _EmployeeDetail extends StatelessWidget {
             child: Text(
               employee.position!.name,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.white70,
+                    color: AppColors.onPrimaryMuted,
                   ),
             ),
           ),
@@ -144,7 +146,7 @@ class _Section extends StatelessWidget {
           child: Text(
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onPrimary,
                   fontWeight: FontWeight.bold,
                 ),
           ),
@@ -166,9 +168,9 @@ class _InfoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       dense: true,
-      leading: Icon(icon, size: 20, color: Colors.white70),
-      title: Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
-      subtitle: Text(value, style: const TextStyle(color: Colors.white, fontSize: 14)),
+      leading: Icon(icon, size: 20),
+      title: Text(label, style: TextStyle(color: AppColors.onPrimaryMuted, fontSize: 12)),
+      subtitle: Text(value, style: TextStyle(color: AppColors.onPrimary, fontSize: 14)),
     );
   }
 }
