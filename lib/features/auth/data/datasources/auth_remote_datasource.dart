@@ -29,4 +29,20 @@ class AuthRemoteDatasource implements AuthDatasource {
       );
     }
   }
+
+  @override
+  Future<LoginResponseModel> validateToken(String token) async {
+    try {
+      final response = await _client.dio.post(
+        Endpoints.validateToken,
+        data: {'token': token},
+      );
+      return LoginResponseModel.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ServerException(
+        message: e.response?.data?['message']?.toString() ?? 'Token inválido',
+        statusCode: e.response?.statusCode,
+      );
+    }
+  }
 }

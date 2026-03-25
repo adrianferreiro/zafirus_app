@@ -8,4 +8,6 @@ abstract class AuthRepository {
     required String username,
     required String pin,
   });
+
+  Future<Either<Failure, UserEntity>> validateToken();
 }

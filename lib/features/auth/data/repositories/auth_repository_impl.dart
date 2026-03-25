@@ -29,4 +29,22 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(ServerFailure(message: 'Error inesperado'));
     }
   }
+
+  @override
+  Future<Either<Failure, UserEntity>> validateToken() async {
+    try {
+      final token = await _storage.read(StorageKeys.token);
+      if (token == null) return const Left(ServerFailure(message: 'Sin sesión'));
+
+      final response = await _datasource.validateToken(token);
+      await _storage.write(StorageKeys.token, response.token);
+      return Right(response.toEntity());
+    } on ServerException catch (e) {
+      await _storage.delete(StorageKeys.token);
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      await _storage.delete(StorageKeys.token);
+      return Left(ServerFailure(message: 'Error inesperado'));
+    }
+  }
 }

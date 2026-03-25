@@ -5,4 +5,6 @@ abstract class AuthDatasource {
     required String username,
     required String pin,
   });
+
+  Future<LoginResponseModel> validateToken(String token);
 }

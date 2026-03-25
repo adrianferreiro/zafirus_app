@@ -21,4 +21,21 @@ class AuthMockDatasource implements AuthDatasource {
       email: 'juan@example.com',
     );
   }
+
+  @override
+  Future<LoginResponseModel> validateToken(String token) async {
+    await Future.delayed(const Duration(seconds: 1));
+
+    if (token == 'mock_token_abc123') {
+      return const LoginResponseModel(
+        token: 'mock_token_abc123',
+        name: 'Juan',
+        lastName: 'Pérez',
+        phone: '+595981123456',
+        email: 'juan@example.com',
+      );
+    }
+
+    throw Exception('Token inválido');
+  }
 }
