@@ -1,0 +1,8 @@
+class Endpoints {
+  Endpoints._();
+
+  static const String _apiVersion = '/api/v1';
+
+  // Auth
+  static const String login = '$_apiVersion/auth/login';
+}
