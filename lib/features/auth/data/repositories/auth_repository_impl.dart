@@ -47,4 +47,17 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(ServerFailure(message: 'Error inesperado'));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> logout() async {
+    try {
+      final token = await _storage.read(StorageKeys.token);
+      if (token != null) await _datasource.logout(token);
+      await _storage.deleteAll();
+      return const Right(null);
+    } catch (e) {
+      await _storage.deleteAll();
+      return const Right(null);
+    }
+  }
 }

@@ -10,6 +10,7 @@ import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/login_usecase.dart';
+import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/validate_token_usecase.dart';
 
 part 'auth_provider.freezed.dart';
@@ -33,6 +34,10 @@ final loginUseCaseProvider = Provider<LoginUseCase>(
 
 final validateTokenUseCaseProvider = Provider<ValidateTokenUseCase>(
   (ref) => ValidateTokenUseCase(ref.read(authRepositoryProvider)),
+);
+
+final logoutUseCaseProvider = Provider<LogoutUseCase>(
+  (ref) => LogoutUseCase(ref.read(authRepositoryProvider)),
 );
 
 // State

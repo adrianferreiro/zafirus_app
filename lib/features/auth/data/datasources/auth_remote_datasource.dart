@@ -45,4 +45,19 @@ class AuthRemoteDatasource implements AuthDatasource {
       );
     }
   }
+
+  @override
+  Future<void> logout(String token) async {
+    try {
+      await _client.dio.post(
+        Endpoints.logout,
+        data: {'token': token},
+      );
+    } on DioException catch (e) {
+      throw ServerException(
+        message: e.response?.data?['message']?.toString() ?? 'Error al cerrar sesión',
+        statusCode: e.response?.statusCode,
+      );
+    }
+  }
 }

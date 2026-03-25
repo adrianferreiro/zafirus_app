@@ -7,4 +7,6 @@ abstract class AuthDatasource {
   });
 
   Future<LoginResponseModel> validateToken(String token);
+
+  Future<void> logout(String token);
 }

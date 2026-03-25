@@ -38,4 +38,9 @@ class AuthMockDatasource implements AuthDatasource {
 
     throw Exception('Token inválido');
   }
+
+  @override
+  Future<void> logout(String token) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
 }
