@@ -29,20 +29,19 @@ class _EmployeeScreenState extends ConsumerState<EmployeeScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(employeeProvider);
-    final notifier = ref.read(employeeProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Mi Perfil')),
       body: AppStateHandler(
-        state: state,
+        state: state.status,
         useSkeletonizer: true,
-        errorMessage: notifier.errorMessage,
+        errorMessage: state.errorMessage,
         onRetry: () {
           final user = ref.read(currentUserProvider);
-          if (user != null) notifier.load(user.employeeId);
+          if (user != null) ref.read(employeeProvider.notifier).load(user.employeeId);
         },
-        onSuccess: (_) => notifier.data != null
-            ? _EmployeeDetail(employee: notifier.data!)
+        onSuccess: (_) => state.data != null
+            ? _EmployeeDetail(employee: state.data!)
             : _EmployeeDetailPlaceholder(),
       ),
     );

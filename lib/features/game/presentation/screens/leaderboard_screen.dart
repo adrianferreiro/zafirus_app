@@ -23,18 +23,17 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(leaderboardProvider);
-    final notifier = ref.read(leaderboardProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Ranking')),
       body: AppStateHandler(
-        state: state,
+        state: state.status,
         useSkeletonizer: true,
-        errorMessage: notifier.errorMessage,
+        errorMessage: state.errorMessage,
         emptyMessage: 'No hay ranking disponible',
-        onRetry: () => notifier.load(),
-        onSuccess: (_) => notifier.data.isNotEmpty
-            ? _LeaderboardContent(entries: notifier.data)
+        onRetry: () => ref.read(leaderboardProvider.notifier).load(),
+        onSuccess: (_) => state.data.isNotEmpty
+            ? _LeaderboardContent(entries: state.data)
             : _LeaderboardPlaceholder(),
       ),
     );

@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../core/config/app_config.dart';
 import '../../../../core/providers/core_providers.dart';
@@ -8,15 +7,12 @@ import '../../data/datasources/game_datasource.dart';
 import '../../data/datasources/game_mock_datasource.dart';
 import '../../data/datasources/game_remote_datasource.dart';
 import '../../data/repositories/game_repository_impl.dart';
-import '../../domain/entities/active_round_entity.dart';
-import '../../domain/entities/leaderboard_entry_entity.dart';
-import '../../domain/entities/vote_result_entity.dart';
 import '../../domain/repositories/game_repository.dart';
 import '../../domain/usecases/get_active_round_usecase.dart';
 import '../../domain/usecases/get_leaderboard_usecase.dart';
 import '../../domain/usecases/submit_vote_usecase.dart';
-
-part 'game_provider.freezed.dart';
+import 'leaderboard_state.dart';
+import 'play_state.dart';
 
 // DI chain
 final gameDatasourceProvider = Provider<GameDatasource>((ref) {
@@ -41,45 +37,32 @@ final submitVoteUseCaseProvider = Provider<SubmitVoteUseCase>(
 );
 
 // Leaderboard
-class LeaderboardNotifier extends StateNotifier<AppViewState> {
+class LeaderboardNotifier extends StateNotifier<LeaderboardViewState> {
   final GetLeaderboardUseCase _getLeaderboard;
-  List<LeaderboardEntryEntity> data = [];
-  String? errorMessage;
 
-  LeaderboardNotifier(this._getLeaderboard) : super(AppViewState.idle);
+  LeaderboardNotifier(this._getLeaderboard) : super(const LeaderboardViewState());
 
   Future<void> load() async {
-    state = AppViewState.loading;
+    state = state.copyWith(status: AppViewState.loading);
     final result = await _getLeaderboard();
     result.fold(
-      (failure) {
-        errorMessage = failure.message;
-        state = AppViewState.error;
-      },
-      (entries) {
-        data = entries;
-        state = entries.isEmpty ? AppViewState.empty : AppViewState.success;
-      },
+      (failure) => state = state.copyWith(
+        status: AppViewState.error,
+        errorMessage: failure.message,
+      ),
+      (entries) => state = state.copyWith(
+        status: entries.isEmpty ? AppViewState.empty : AppViewState.success,
+        data: entries,
+      ),
     );
   }
 }
 
-final leaderboardProvider = StateNotifierProvider<LeaderboardNotifier, AppViewState>(
+final leaderboardProvider = StateNotifierProvider<LeaderboardNotifier, LeaderboardViewState>(
   (ref) => LeaderboardNotifier(ref.read(getLeaderboardUseCaseProvider)),
 );
 
-// Play State (mantiene freezed por estados custom)
-@freezed
-class PlayState with _$PlayState {
-  const factory PlayState.initial() = _PInitial;
-  const factory PlayState.loading() = _PLoading;
-  const factory PlayState.round(ActiveRoundEntity round) = _PRound;
-  const factory PlayState.voting() = _PVoting;
-  const factory PlayState.result(VoteResultEntity result) = _PResult;
-  const factory PlayState.noRound() = _PNoRound;
-  const factory PlayState.error(String message) = _PError;
-}
-
+// Play
 class PlayNotifier extends StateNotifier<PlayState> {
   final GetActiveRoundUseCase _getActiveRound;
   final SubmitVoteUseCase _submitVote;

@@ -7,9 +7,9 @@ import '../../data/datasources/employee_datasource.dart';
 import '../../data/datasources/employee_mock_datasource.dart';
 import '../../data/datasources/employee_remote_datasource.dart';
 import '../../data/repositories/employee_repository_impl.dart';
-import '../../domain/entities/employee_entity.dart';
 import '../../domain/repositories/employee_repository.dart';
 import '../../domain/usecases/get_employee_usecase.dart';
+import 'employee_state.dart';
 
 // DI chain
 final employeeDatasourceProvider = Provider<EmployeeDatasource>((ref) {
@@ -25,29 +25,27 @@ final getEmployeeUseCaseProvider = Provider<GetEmployeeUseCase>(
   (ref) => GetEmployeeUseCase(ref.read(employeeRepositoryProvider)),
 );
 
-class EmployeeNotifier extends StateNotifier<AppViewState> {
+class EmployeeNotifier extends StateNotifier<EmployeeViewState> {
   final GetEmployeeUseCase _getEmployee;
-  EmployeeEntity? data;
-  String? errorMessage;
 
-  EmployeeNotifier(this._getEmployee) : super(AppViewState.idle);
+  EmployeeNotifier(this._getEmployee) : super(const EmployeeViewState());
 
   Future<void> load(int employeeId) async {
-    state = AppViewState.loading;
+    state = state.copyWith(status: AppViewState.loading);
     final result = await _getEmployee(employeeId);
     result.fold(
-      (failure) {
-        errorMessage = failure.message;
-        state = AppViewState.error;
-      },
-      (employee) {
-        data = employee;
-        state = AppViewState.success;
-      },
+      (failure) => state = state.copyWith(
+        status: AppViewState.error,
+        errorMessage: failure.message,
+      ),
+      (employee) => state = state.copyWith(
+        status: AppViewState.success,
+        data: employee,
+      ),
     );
   }
 }
 
-final employeeProvider = StateNotifierProvider<EmployeeNotifier, AppViewState>(
+final employeeProvider = StateNotifierProvider<EmployeeNotifier, EmployeeViewState>(
   (ref) => EmployeeNotifier(ref.read(getEmployeeUseCaseProvider)),
 );

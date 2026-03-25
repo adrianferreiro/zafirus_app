@@ -7,9 +7,9 @@ import '../../data/datasources/document_datasource.dart';
 import '../../data/datasources/document_mock_datasource.dart';
 import '../../data/datasources/document_remote_datasource.dart';
 import '../../data/repositories/document_repository_impl.dart';
-import '../../domain/entities/document_entity.dart';
 import '../../domain/repositories/document_repository.dart';
 import '../../domain/usecases/get_documents_usecase.dart';
+import 'document_state.dart';
 
 // DI chain
 final documentDatasourceProvider = Provider<DocumentDatasource>((ref) {
@@ -25,29 +25,27 @@ final getDocumentsUseCaseProvider = Provider<GetDocumentsUseCase>(
   (ref) => GetDocumentsUseCase(ref.read(documentRepositoryProvider)),
 );
 
-class DocumentsNotifier extends StateNotifier<AppViewState> {
+class DocumentsNotifier extends StateNotifier<DocumentsViewState> {
   final GetDocumentsUseCase _getDocuments;
-  List<DocumentEntity> data = [];
-  String? errorMessage;
 
-  DocumentsNotifier(this._getDocuments) : super(AppViewState.idle);
+  DocumentsNotifier(this._getDocuments) : super(const DocumentsViewState());
 
   Future<void> load(int employeeId) async {
-    state = AppViewState.loading;
+    state = state.copyWith(status: AppViewState.loading);
     final result = await _getDocuments(employeeId);
     result.fold(
-      (failure) {
-        errorMessage = failure.message;
-        state = AppViewState.error;
-      },
-      (docs) {
-        data = docs;
-        state = docs.isEmpty ? AppViewState.empty : AppViewState.success;
-      },
+      (failure) => state = state.copyWith(
+        status: AppViewState.error,
+        errorMessage: failure.message,
+      ),
+      (docs) => state = state.copyWith(
+        status: docs.isEmpty ? AppViewState.empty : AppViewState.success,
+        data: docs,
+      ),
     );
   }
 }
 
-final documentsProvider = StateNotifierProvider<DocumentsNotifier, AppViewState>(
+final documentsProvider = StateNotifierProvider<DocumentsNotifier, DocumentsViewState>(
   (ref) => DocumentsNotifier(ref.read(getDocumentsUseCaseProvider)),
 );

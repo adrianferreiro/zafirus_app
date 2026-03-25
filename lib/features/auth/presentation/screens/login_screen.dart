@@ -8,6 +8,7 @@ import '../../../../core/constants/app_assets.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/utils/app_toast.dart';
 import '../providers/auth_provider.dart';
+import '../providers/login_state.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});

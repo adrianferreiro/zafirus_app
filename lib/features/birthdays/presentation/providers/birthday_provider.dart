@@ -7,9 +7,9 @@ import '../../data/datasources/birthday_datasource.dart';
 import '../../data/datasources/birthday_mock_datasource.dart';
 import '../../data/datasources/birthday_remote_datasource.dart';
 import '../../data/repositories/birthday_repository_impl.dart';
-import '../../domain/entities/birthday_entity.dart';
 import '../../domain/repositories/birthday_repository.dart';
 import '../../domain/usecases/get_today_birthdays_usecase.dart';
+import 'birthday_state.dart';
 
 // DI chain
 final birthdayDatasourceProvider = Provider<BirthdayDatasource>((ref) {
@@ -25,29 +25,27 @@ final getTodayBirthdaysUseCaseProvider = Provider<GetTodayBirthdaysUseCase>(
   (ref) => GetTodayBirthdaysUseCase(ref.read(birthdayRepositoryProvider)),
 );
 
-class BirthdaysNotifier extends StateNotifier<AppViewState> {
+class BirthdaysNotifier extends StateNotifier<BirthdaysViewState> {
   final GetTodayBirthdaysUseCase _getBirthdays;
-  List<BirthdayEntity> data = [];
-  String? errorMessage;
 
-  BirthdaysNotifier(this._getBirthdays) : super(AppViewState.idle);
+  BirthdaysNotifier(this._getBirthdays) : super(const BirthdaysViewState());
 
   Future<void> load() async {
-    state = AppViewState.loading;
+    state = state.copyWith(status: AppViewState.loading);
     final result = await _getBirthdays();
     result.fold(
-      (failure) {
-        errorMessage = failure.message;
-        state = AppViewState.error;
-      },
-      (birthdays) {
-        data = birthdays;
-        state = birthdays.isEmpty ? AppViewState.empty : AppViewState.success;
-      },
+      (failure) => state = state.copyWith(
+        status: AppViewState.error,
+        errorMessage: failure.message,
+      ),
+      (birthdays) => state = state.copyWith(
+        status: birthdays.isEmpty ? AppViewState.empty : AppViewState.success,
+        data: birthdays,
+      ),
     );
   }
 }
 
-final birthdaysProvider = StateNotifierProvider<BirthdaysNotifier, AppViewState>(
+final birthdaysProvider = StateNotifierProvider<BirthdaysNotifier, BirthdaysViewState>(
   (ref) => BirthdaysNotifier(ref.read(getTodayBirthdaysUseCaseProvider)),
 );

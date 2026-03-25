@@ -30,26 +30,25 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(documentsProvider);
-    final notifier = ref.read(documentsProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Mis Documentos')),
       body: AppStateHandler(
-        state: state,
+        state: state.status,
         useSkeletonizer: true,
-        errorMessage: notifier.errorMessage,
+        errorMessage: state.errorMessage,
         emptyMessage: 'No hay documentos',
         onRetry: () {
           final user = ref.read(currentUserProvider);
-          if (user != null) notifier.load(user.employeeId);
+          if (user != null) ref.read(documentsProvider.notifier).load(user.employeeId);
         },
-        onSuccess: (_) => notifier.data.isNotEmpty
+        onSuccess: (_) => state.data.isNotEmpty
             ? ListView.separated(
                 padding: const EdgeInsets.all(16),
-                itemCount: notifier.data.length,
+                itemCount: state.data.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 8),
                 itemBuilder: (context, index) =>
-                    _DocumentTile(document: notifier.data[index]),
+                    _DocumentTile(document: state.data[index]),
               )
             : _DocumentsPlaceholder(),
       ),

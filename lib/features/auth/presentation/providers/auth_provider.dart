@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../core/config/app_config.dart';
 import '../../../../core/providers/core_providers.dart';
@@ -12,8 +11,7 @@ import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/validate_token_usecase.dart';
-
-part 'auth_provider.freezed.dart';
+import 'login_state.dart';
 
 // Current user
 final currentUserProvider = StateProvider<UserEntity?>((ref) => null);
@@ -42,15 +40,6 @@ final validateTokenUseCaseProvider = Provider<ValidateTokenUseCase>(
 final logoutUseCaseProvider = Provider<LogoutUseCase>(
   (ref) => LogoutUseCase(ref.read(authRepositoryProvider)),
 );
-
-// State
-@freezed
-class LoginState with _$LoginState {
-  const factory LoginState.initial() = _Initial;
-  const factory LoginState.loading() = _Loading;
-  const factory LoginState.success(UserEntity user) = _Success;
-  const factory LoginState.error(String message) = _Error;
-}
 
 // Notifier
 class LoginNotifier extends StateNotifier<LoginState> {

@@ -37,7 +37,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
     final birthdaysState = ref.watch(birthdaysProvider);
-    final birthdaysNotifier = ref.read(birthdaysProvider.notifier);
     final colors = Theme.of(context).colorScheme;
     final initials = user != null
         ? '${user.name[0]}${user.lastName[0]}'.toUpperCase()
@@ -118,15 +117,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             SizedBox(
               height: 68,
               child: AppStateHandler(
-                state: birthdaysState,
+                state: birthdaysState.status,
                 useSkeletonizer: true,
                 emptyMessage: 'No hay cumpleaños hoy',
                 errorMessage:
-                    birthdaysNotifier.errorMessage ??
+                    birthdaysState.errorMessage ??
                     'No se pudieron cargar los cumpleaños',
-                onRetry: () => birthdaysNotifier.load(),
-                onSuccess: (_) => birthdaysNotifier.data.isNotEmpty
-                    ? _BirthdayList(birthdays: birthdaysNotifier.data)
+                onRetry: () => ref.read(birthdaysProvider.notifier).load(),
+                onSuccess: (_) => birthdaysState.data.isNotEmpty
+                    ? _BirthdayList(birthdays: birthdaysState.data)
                     : _BirthdayListPlaceholder(),
               ),
             ),
