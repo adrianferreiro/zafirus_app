@@ -10,4 +10,5 @@ class Endpoints {
 
   // Employee
   static String employee(int id) => '$_apiVersion/employees/$id';
+  static String employeeDocuments(int id) => '$_apiVersion/employees/$id/documents';
 }
