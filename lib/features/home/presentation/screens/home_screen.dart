@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/app_toast.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../birthdays/domain/entities/birthday_entity.dart';
 import '../../../birthdays/presentation/providers/birthday_provider.dart';
@@ -25,7 +26,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Future<void> _onLogout(BuildContext context, WidgetRef ref) async {
     await ref.read(logoutUseCaseProvider).call();
     ref.read(currentUserProvider.notifier).state = null;
-    if (context.mounted) context.go(AppRouter.login);
+    if (context.mounted) {
+      AppToast.success(context, message: 'Sesión cerrada');
+      context.go(AppRouter.login);
+    }
   }
 
   @override

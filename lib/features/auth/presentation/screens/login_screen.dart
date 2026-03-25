@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/utils/app_toast.dart';
 import '../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -43,9 +44,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     ref.listen<LoginState>(loginProvider, (_, next) {
       next.maybeWhen(
-        error: (message) => ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(message))),
+        error: (message) => AppToast.error(context, message: message),
         success: (_) => context.go(AppRouter.home),
         orElse: () {},
       );

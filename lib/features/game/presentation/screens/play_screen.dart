@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/app_toast.dart';
 import '../../domain/entities/active_round_entity.dart';
 import '../providers/game_provider.dart';
 
@@ -32,9 +33,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen> {
     ref.listen<PlayState>(playProvider, (_, next) {
       next.maybeWhen(
         noRound: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No hay ronda activa, intentá de nuevo')),
-          );
+          AppToast.info(context, message: 'No hay ronda activa, intentá de nuevo');
           ref.read(playProvider.notifier).reset();
         },
         orElse: () {},
