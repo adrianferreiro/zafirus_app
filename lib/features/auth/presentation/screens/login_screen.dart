@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:go_router/go_router.dart';
+
+import '../../../../core/constants/app_assets.dart';
+import '../../../../core/router/app_router.dart';
 import '../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -25,7 +29,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   void _onLogin() {
     if (!_formKey.currentState!.validate()) return;
-    ref.read(loginProvider.notifier).login(
+    ref
+        .read(loginProvider.notifier)
+        .login(
           username: _usernameController.text.trim(),
           pin: _pinController.text.trim(),
         );
@@ -37,12 +43,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     ref.listen<LoginState>(loginProvider, (_, next) {
       next.maybeWhen(
-        error: (message) => ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        ),
-        success: (_) {
-          // TODO: navegar a home
-        },
+        error: (message) => ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message))),
+        success: (_) => context.go(AppRouter.home),
         orElse: () {},
       );
     });
@@ -56,10 +60,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Zafirus',
-                  style: Theme.of(context).textTheme.headlineLarge,
-                ),
+                Image.asset(AppAssets.logo, height: 100),
                 const SizedBox(height: 48),
                 TextFormField(
                   controller: _usernameController,
@@ -67,8 +68,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     labelText: 'Usuario',
                     prefixIcon: Icon(Icons.person_outline),
                   ),
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Ingrese su usuario' : null,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Ingrese su usuario'
+                      : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -81,8 +83,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   keyboardType: TextInputType.number,
                   maxLength: 6,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  validator: (v) =>
-                      (v == null || v.length != 6) ? 'El PIN debe tener 6 dígitos' : null,
+                  validator: (v) => (v == null || v.length != 6)
+                      ? 'El PIN debe tener 6 dígitos'
+                      : null,
                 ),
                 const SizedBox(height: 24),
                 SizedBox(
