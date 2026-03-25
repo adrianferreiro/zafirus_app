@@ -130,6 +130,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     label: 'Documentos',
                     onTap: () => context.push(AppRouter.documents),
                   ),
+                  _QuickCard(
+                    icon: Icons.emoji_events_outlined,
+                    label: 'Ranking',
+                    onTap: () => context.push(AppRouter.leaderboard),
+                  ),
+                  _QuickCard(
+                    icon: Icons.sports_esports_outlined,
+                    label: 'Jugar',
+                    onTap: () => context.push(AppRouter.play),
+                  ),
                 ],
               ),
             ),

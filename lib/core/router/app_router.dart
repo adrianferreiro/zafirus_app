@@ -4,6 +4,8 @@ import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/splash_screen.dart';
 import '../../features/documents/presentation/screens/documents_screen.dart';
 import '../../features/employee/presentation/screens/employee_screen.dart';
+import '../../features/game/presentation/screens/leaderboard_screen.dart';
+import '../../features/game/presentation/screens/play_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 
 class AppRouter {
@@ -14,6 +16,8 @@ class AppRouter {
   static const String home = '/home';
   static const String profile = '/profile';
   static const String documents = '/documents';
+  static const String leaderboard = '/leaderboard';
+  static const String play = '/play';
 
   static final router = GoRouter(
     initialLocation: splash,
@@ -37,6 +41,14 @@ class AppRouter {
       GoRoute(
         path: documents,
         builder: (context, state) => const DocumentsScreen(),
+      ),
+      GoRoute(
+        path: leaderboard,
+        builder: (context, state) => const LeaderboardScreen(),
+      ),
+      GoRoute(
+        path: play,
+        builder: (context, state) => const PlayScreen(),
       ),
     ],
   );

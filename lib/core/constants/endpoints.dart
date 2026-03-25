@@ -14,4 +14,9 @@ class Endpoints {
 
   // Birthdays
   static const String birthdaysToday = '$_apiVersion/birthdays/today';
+
+  // Game
+  static const String gameLeaderboard = '$_apiVersion/game/leaderboard';
+  static const String gameActiveRound = '$_apiVersion/game/active-round';
+  static String gameVote(int roundId) => '$_apiVersion/game/rounds/$roundId/vote';
 }
