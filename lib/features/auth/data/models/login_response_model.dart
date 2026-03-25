@@ -9,6 +9,7 @@ part 'login_response_model.g.dart';
 class LoginResponseModel with _$LoginResponseModel {
   const factory LoginResponseModel({
     required String token,
+    @JsonKey(name: 'employee_id') required int employeeId,
     required String name,
     @JsonKey(name: 'last_name') required String lastName,
     required String phone,
@@ -22,6 +23,7 @@ class LoginResponseModel with _$LoginResponseModel {
 
   UserEntity toEntity() => UserEntity(
         token: token,
+        employeeId: employeeId,
         name: name,
         lastName: lastName,
         phone: phone,

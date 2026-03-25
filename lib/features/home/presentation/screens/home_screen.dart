@@ -51,6 +51,14 @@ class HomeScreen extends ConsumerWidget {
             ),
             const Spacer(),
             ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Mi Perfil'),
+              onTap: () {
+                Navigator.of(context).pop();
+                context.push(AppRouter.profile);
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Cerrar sesión'),
               onTap: () {

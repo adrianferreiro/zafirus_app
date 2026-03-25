@@ -6,6 +6,7 @@ part 'user_entity.freezed.dart';
 class UserEntity with _$UserEntity {
   const factory UserEntity({
     required String token,
+    required int employeeId,
     required String name,
     required String lastName,
     required String phone,

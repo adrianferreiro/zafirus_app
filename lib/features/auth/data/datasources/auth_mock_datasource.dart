@@ -15,6 +15,7 @@ class AuthMockDatasource implements AuthDatasource {
 
     return const LoginResponseModel(
       token: 'mock_token_abc123',
+      employeeId: 1001,
       name: 'Juan',
       lastName: 'Pérez',
       phone: '+595981123456',
@@ -29,6 +30,7 @@ class AuthMockDatasource implements AuthDatasource {
     if (token == 'mock_token_abc123') {
       return const LoginResponseModel(
         token: 'mock_token_abc123',
+        employeeId: 1001,
         name: 'Juan',
         lastName: 'Pérez',
         phone: '+595981123456',
