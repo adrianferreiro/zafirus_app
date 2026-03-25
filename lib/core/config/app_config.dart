@@ -3,15 +3,17 @@ import 'flavor.dart';
 class AppConfig {
   final Flavor flavor;
   final String baseUrl;
+  final bool useMock;
 
   static late final AppConfig _instance;
 
-  AppConfig._({required this.flavor, required this.baseUrl});
+  AppConfig._({required this.flavor, required this.baseUrl, required this.useMock});
 
-  static void init({required Flavor flavor}) {
+  static void init({required Flavor flavor, bool useMock = false}) {
     _instance = AppConfig._(
       flavor: flavor,
       baseUrl: _baseUrlFor(flavor),
+      useMock: useMock,
     );
   }
 

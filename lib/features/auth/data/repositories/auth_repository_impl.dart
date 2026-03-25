@@ -6,10 +6,10 @@ import '../../../../core/storage/secure_storage_service.dart';
 import '../../../../core/storage/storage_keys.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
-import '../datasources/auth_remote_datasource.dart';
+import '../datasources/auth_datasource.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  final AuthRemoteDatasource _datasource;
+  final AuthDatasource _datasource;
   final SecureStorageService _storage;
 
   AuthRepositoryImpl(this._datasource, this._storage);

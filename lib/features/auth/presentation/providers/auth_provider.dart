@@ -1,7 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../../core/config/app_config.dart';
 import '../../../../core/providers/core_providers.dart';
+import '../../data/datasources/auth_datasource.dart';
+import '../../data/datasources/auth_mock_datasource.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/user_entity.dart';
@@ -11,13 +14,14 @@ import '../../domain/usecases/login_usecase.dart';
 part 'auth_provider.freezed.dart';
 
 // DI chain
-final authRemoteDatasourceProvider = Provider<AuthRemoteDatasource>(
-  (ref) => AuthRemoteDatasource(ref.read(dioClientProvider)),
-);
+final authDatasourceProvider = Provider<AuthDatasource>((ref) {
+  if (AppConfig.instance.useMock) return AuthMockDatasource();
+  return AuthRemoteDatasource(ref.read(dioClientProvider));
+});
 
 final authRepositoryProvider = Provider<AuthRepository>(
   (ref) => AuthRepositoryImpl(
-    ref.read(authRemoteDatasourceProvider),
+    ref.read(authDatasourceProvider),
     ref.read(secureStorageProvider),
   ),
 );

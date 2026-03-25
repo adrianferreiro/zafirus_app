@@ -4,12 +4,14 @@ import '../../../../core/constants/endpoints.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/network/dio_client.dart';
 import '../models/login_response_model.dart';
+import 'auth_datasource.dart';
 
-class AuthRemoteDatasource {
+class AuthRemoteDatasource implements AuthDatasource {
   final DioClient _client;
 
   AuthRemoteDatasource(this._client);
 
+  @override
   Future<LoginResponseModel> login({
     required String username,
     required String pin,
