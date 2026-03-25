@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/app_toast.dart';
+import '../../../../core/widgets/app_state_handler.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../birthdays/domain/entities/birthday_entity.dart';
 import '../../../birthdays/presentation/providers/birthday_provider.dart';
@@ -36,6 +37,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
     final birthdaysState = ref.watch(birthdaysProvider);
+    final birthdaysNotifier = ref.read(birthdaysProvider.notifier);
     final colors = Theme.of(context).colorScheme;
     final initials = user != null
         ? '${user.name[0]}${user.lastName[0]}'.toUpperCase()
@@ -111,12 +113,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               style: TextStyle(color: AppColors.onPrimarySubtle, fontSize: 14),
             ),
             const SizedBox(height: 24),
-            birthdaysState.maybeWhen(
-              loaded: (birthdays) => birthdays.isNotEmpty
-                  ? _BirthdaysSection(birthdays: birthdays)
-                  : const SizedBox.shrink(),
-              orElse: () => const SizedBox.shrink(),
+            _BirthdayHeader(colors: colors),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 68,
+              child: AppStateHandler(
+                state: birthdaysState,
+                useSkeletonizer: true,
+                emptyMessage: 'No hay cumpleaños hoy',
+                errorMessage:
+                    birthdaysNotifier.errorMessage ??
+                    'No se pudieron cargar los cumpleaños',
+                onRetry: () => birthdaysNotifier.load(),
+                onSuccess: (_) => birthdaysNotifier.data.isNotEmpty
+                    ? _BirthdayList(birthdays: birthdaysNotifier.data)
+                    : _BirthdayListPlaceholder(),
+              ),
             ),
+            const SizedBox(height: 24),
             Expanded(
               child: GridView.count(
                 crossAxisCount: 2,
@@ -154,45 +168,43 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-class _BirthdaysSection extends StatelessWidget {
-  final List<BirthdayEntity> birthdays;
+class _BirthdayHeader extends StatelessWidget {
+  final ColorScheme colors;
 
-  const _BirthdaysSection({required this.birthdays});
+  const _BirthdayHeader({required this.colors});
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        Row(
-          children: [
-            Icon(Icons.cake, color: colors.primary, size: 20),
-            const SizedBox(width: 8),
-            Text(
-              'Cumpleaños hoy',
-              style: TextStyle(
-                color: colors.onPrimary,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 80,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: birthdays.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
-            itemBuilder: (context, index) =>
-                _BirthdayChip(birthday: birthdays[index]),
+        Icon(Icons.cake, color: colors.primary, size: 20),
+        const SizedBox(width: 8),
+        Text(
+          'Cumpleaños hoy',
+          style: TextStyle(
+            color: colors.onPrimary,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 24),
       ],
+    );
+  }
+}
+
+class _BirthdayList extends StatelessWidget {
+  final List<BirthdayEntity> birthdays;
+
+  const _BirthdayList({required this.birthdays});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      itemCount: birthdays.length,
+      separatorBuilder: (_, _) => const SizedBox(width: 12),
+      itemBuilder: (context, index) =>
+          _BirthdayChip(birthday: birthdays[index]),
     );
   }
 }
@@ -295,6 +307,40 @@ class _QuickCard extends StatelessWidget {
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BirthdayListPlaceholder extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: 3,
+      separatorBuilder: (_, __) => const SizedBox(width: 12),
+      itemBuilder: (_, __) => Container(
+        width: 180,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Row(
+          children: [
+            CircleAvatar(radius: 18),
+            SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Nombre aqui'),
+                Text('Posición'),
+              ],
             ),
           ],
         ),

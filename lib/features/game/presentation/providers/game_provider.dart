@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../core/config/app_config.dart';
 import '../../../../core/providers/core_providers.dart';
+import '../../../../core/utils/app_view_state.dart';
 import '../../data/datasources/game_datasource.dart';
 import '../../data/datasources/game_mock_datasource.dart';
 import '../../data/datasources/game_remote_datasource.dart';
@@ -39,35 +40,35 @@ final submitVoteUseCaseProvider = Provider<SubmitVoteUseCase>(
   (ref) => SubmitVoteUseCase(ref.read(gameRepositoryProvider)),
 );
 
-// Leaderboard State
-@freezed
-class LeaderboardState with _$LeaderboardState {
-  const factory LeaderboardState.initial() = _LInitial;
-  const factory LeaderboardState.loading() = _LLoading;
-  const factory LeaderboardState.loaded(List<LeaderboardEntryEntity> entries) = _LLoaded;
-  const factory LeaderboardState.error(String message) = _LError;
-}
-
-class LeaderboardNotifier extends StateNotifier<LeaderboardState> {
+// Leaderboard
+class LeaderboardNotifier extends StateNotifier<AppViewState> {
   final GetLeaderboardUseCase _getLeaderboard;
+  List<LeaderboardEntryEntity> data = [];
+  String? errorMessage;
 
-  LeaderboardNotifier(this._getLeaderboard) : super(const LeaderboardState.initial());
+  LeaderboardNotifier(this._getLeaderboard) : super(AppViewState.idle);
 
   Future<void> load() async {
-    state = const LeaderboardState.loading();
+    state = AppViewState.loading;
     final result = await _getLeaderboard();
-    state = result.fold(
-      (failure) => LeaderboardState.error(failure.message),
-      (entries) => LeaderboardState.loaded(entries),
+    result.fold(
+      (failure) {
+        errorMessage = failure.message;
+        state = AppViewState.error;
+      },
+      (entries) {
+        data = entries;
+        state = entries.isEmpty ? AppViewState.empty : AppViewState.success;
+      },
     );
   }
 }
 
-final leaderboardProvider = StateNotifierProvider<LeaderboardNotifier, LeaderboardState>(
+final leaderboardProvider = StateNotifierProvider<LeaderboardNotifier, AppViewState>(
   (ref) => LeaderboardNotifier(ref.read(getLeaderboardUseCaseProvider)),
 );
 
-// Play State
+// Play State (mantiene freezed por estados custom)
 @freezed
 class PlayState with _$PlayState {
   const factory PlayState.initial() = _PInitial;

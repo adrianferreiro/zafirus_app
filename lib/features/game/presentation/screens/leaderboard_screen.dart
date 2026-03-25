@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/app_state_handler.dart';
 import '../../domain/entities/leaderboard_entry_entity.dart';
 import '../providers/game_provider.dart';
 
@@ -22,14 +23,19 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(leaderboardProvider);
+    final notifier = ref.read(leaderboardProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Ranking')),
-      body: state.when(
-        initial: () => const SizedBox.shrink(),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (message) => Center(child: Text(message)),
-        loaded: (entries) => _LeaderboardContent(entries: entries),
+      body: AppStateHandler(
+        state: state,
+        useSkeletonizer: true,
+        errorMessage: notifier.errorMessage,
+        emptyMessage: 'No hay ranking disponible',
+        onRetry: () => notifier.load(),
+        onSuccess: (_) => notifier.data.isNotEmpty
+            ? _LeaderboardContent(entries: notifier.data)
+            : _LeaderboardPlaceholder(),
       ),
     );
   }
@@ -69,8 +75,6 @@ class _Podium extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -253,6 +257,84 @@ class _EntryTile extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _LeaderboardPlaceholder extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            _buildPodium(90),
+            _buildPodium(120),
+            _buildPodium(70),
+          ],
+        ),
+        const SizedBox(height: 24),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: 5,
+            itemBuilder: (_, __) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Row(
+                  children: [
+                    Text('#0'),
+                    SizedBox(width: 12),
+                    CircleAvatar(radius: 18),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Player name here'),
+                          Text('0 partidas'),
+                        ],
+                      ),
+                    ),
+                    Text('00 pts'),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  static Widget _buildPodium(double height) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const CircleAvatar(radius: 24),
+          const SizedBox(height: 8),
+          Container(height: 14, width: 70, color: Colors.white),
+          const SizedBox(height: 8),
+          Container(
+            width: 90,
+            height: height,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            ),
+          ),
+        ],
       ),
     );
   }

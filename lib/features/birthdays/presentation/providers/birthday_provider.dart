@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../core/config/app_config.dart';
 import '../../../../core/providers/core_providers.dart';
+import '../../../../core/utils/app_view_state.dart';
 import '../../data/datasources/birthday_datasource.dart';
 import '../../data/datasources/birthday_mock_datasource.dart';
 import '../../data/datasources/birthday_remote_datasource.dart';
@@ -10,8 +10,6 @@ import '../../data/repositories/birthday_repository_impl.dart';
 import '../../domain/entities/birthday_entity.dart';
 import '../../domain/repositories/birthday_repository.dart';
 import '../../domain/usecases/get_today_birthdays_usecase.dart';
-
-part 'birthday_provider.freezed.dart';
 
 // DI chain
 final birthdayDatasourceProvider = Provider<BirthdayDatasource>((ref) {
@@ -27,31 +25,29 @@ final getTodayBirthdaysUseCaseProvider = Provider<GetTodayBirthdaysUseCase>(
   (ref) => GetTodayBirthdaysUseCase(ref.read(birthdayRepositoryProvider)),
 );
 
-// State
-@freezed
-class BirthdaysState with _$BirthdaysState {
-  const factory BirthdaysState.initial() = _Initial;
-  const factory BirthdaysState.loading() = _Loading;
-  const factory BirthdaysState.loaded(List<BirthdayEntity> birthdays) = _Loaded;
-  const factory BirthdaysState.error(String message) = _Error;
-}
-
-// Notifier
-class BirthdaysNotifier extends StateNotifier<BirthdaysState> {
+class BirthdaysNotifier extends StateNotifier<AppViewState> {
   final GetTodayBirthdaysUseCase _getBirthdays;
+  List<BirthdayEntity> data = [];
+  String? errorMessage;
 
-  BirthdaysNotifier(this._getBirthdays) : super(const BirthdaysState.initial());
+  BirthdaysNotifier(this._getBirthdays) : super(AppViewState.idle);
 
   Future<void> load() async {
-    state = const BirthdaysState.loading();
+    state = AppViewState.loading;
     final result = await _getBirthdays();
-    state = result.fold(
-      (failure) => BirthdaysState.error(failure.message),
-      (birthdays) => BirthdaysState.loaded(birthdays),
+    result.fold(
+      (failure) {
+        errorMessage = failure.message;
+        state = AppViewState.error;
+      },
+      (birthdays) {
+        data = birthdays;
+        state = birthdays.isEmpty ? AppViewState.empty : AppViewState.success;
+      },
     );
   }
 }
 
-final birthdaysProvider = StateNotifierProvider<BirthdaysNotifier, BirthdaysState>(
+final birthdaysProvider = StateNotifierProvider<BirthdaysNotifier, AppViewState>(
   (ref) => BirthdaysNotifier(ref.read(getTodayBirthdaysUseCaseProvider)),
 );

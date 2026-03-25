@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../core/config/app_config.dart';
 import '../../../../core/providers/core_providers.dart';
+import '../../../../core/utils/app_view_state.dart';
 import '../../data/datasources/employee_datasource.dart';
 import '../../data/datasources/employee_mock_datasource.dart';
 import '../../data/datasources/employee_remote_datasource.dart';
@@ -10,8 +10,6 @@ import '../../data/repositories/employee_repository_impl.dart';
 import '../../domain/entities/employee_entity.dart';
 import '../../domain/repositories/employee_repository.dart';
 import '../../domain/usecases/get_employee_usecase.dart';
-
-part 'employee_provider.freezed.dart';
 
 // DI chain
 final employeeDatasourceProvider = Provider<EmployeeDatasource>((ref) {
@@ -27,31 +25,29 @@ final getEmployeeUseCaseProvider = Provider<GetEmployeeUseCase>(
   (ref) => GetEmployeeUseCase(ref.read(employeeRepositoryProvider)),
 );
 
-// State
-@freezed
-class EmployeeState with _$EmployeeState {
-  const factory EmployeeState.initial() = _Initial;
-  const factory EmployeeState.loading() = _Loading;
-  const factory EmployeeState.loaded(EmployeeEntity employee) = _Loaded;
-  const factory EmployeeState.error(String message) = _Error;
-}
-
-// Notifier
-class EmployeeNotifier extends StateNotifier<EmployeeState> {
+class EmployeeNotifier extends StateNotifier<AppViewState> {
   final GetEmployeeUseCase _getEmployee;
+  EmployeeEntity? data;
+  String? errorMessage;
 
-  EmployeeNotifier(this._getEmployee) : super(const EmployeeState.initial());
+  EmployeeNotifier(this._getEmployee) : super(AppViewState.idle);
 
   Future<void> load(int employeeId) async {
-    state = const EmployeeState.loading();
+    state = AppViewState.loading;
     final result = await _getEmployee(employeeId);
-    state = result.fold(
-      (failure) => EmployeeState.error(failure.message),
-      (employee) => EmployeeState.loaded(employee),
+    result.fold(
+      (failure) {
+        errorMessage = failure.message;
+        state = AppViewState.error;
+      },
+      (employee) {
+        data = employee;
+        state = AppViewState.success;
+      },
     );
   }
 }
 
-final employeeProvider = StateNotifierProvider<EmployeeNotifier, EmployeeState>(
+final employeeProvider = StateNotifierProvider<EmployeeNotifier, AppViewState>(
   (ref) => EmployeeNotifier(ref.read(getEmployeeUseCaseProvider)),
 );

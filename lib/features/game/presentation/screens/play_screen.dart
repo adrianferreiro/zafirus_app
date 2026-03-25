@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/app_toast.dart';
+import '../../../../core/widgets/app_skeleton.dart';
 import '../../domain/entities/active_round_entity.dart';
 import '../providers/game_provider.dart';
 
@@ -28,7 +29,6 @@ class _PlayScreenState extends ConsumerState<PlayScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(playProvider);
-    final colors = Theme.of(context).colorScheme;
 
     ref.listen<PlayState>(playProvider, (_, next) {
       next.maybeWhen(
@@ -48,7 +48,36 @@ class _PlayScreenState extends ConsumerState<PlayScreen> {
           initial: () => _PlayButton(
             onPressed: () => ref.read(playProvider.notifier).fetchRound(),
           ),
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => AppSkeleton(
+            child: Column(
+              children: [
+                const Center(
+                  child: Column(
+                    children: [
+                      CircleAvatar(radius: 24),
+                      SizedBox(height: 8),
+                      Text('Nombre de la persona'),
+                      SizedBox(height: 4),
+                      Text('¿Cuál es la mentira?'),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 32),
+                ...List.generate(3, (_) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Text('Una afirmación de ejemplo aquí'),
+                  ),
+                )),
+              ],
+            ),
+          ),
           noRound: () => _PlayButton(
             onPressed: () => ref.read(playProvider.notifier).fetchRound(),
           ),

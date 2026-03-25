@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/app_state_handler.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../domain/entities/document_entity.dart';
 import '../providers/document_provider.dart';
@@ -29,22 +30,28 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(documentsProvider);
+    final notifier = ref.read(documentsProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Mis Documentos')),
-      body: state.when(
-        initial: () => const SizedBox.shrink(),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (message) => Center(child: Text(message)),
-        loaded: (documents) => documents.isEmpty
-            ? const Center(child: Text('No hay documentos'))
-            : ListView.separated(
+      body: AppStateHandler(
+        state: state,
+        useSkeletonizer: true,
+        errorMessage: notifier.errorMessage,
+        emptyMessage: 'No hay documentos',
+        onRetry: () {
+          final user = ref.read(currentUserProvider);
+          if (user != null) notifier.load(user.employeeId);
+        },
+        onSuccess: (_) => notifier.data.isNotEmpty
+            ? ListView.separated(
                 padding: const EdgeInsets.all(16),
-                itemCount: documents.length,
+                itemCount: notifier.data.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 8),
                 itemBuilder: (context, index) =>
-                    _DocumentTile(document: documents[index]),
-              ),
+                    _DocumentTile(document: notifier.data[index]),
+              )
+            : _DocumentsPlaceholder(),
       ),
     );
   }
@@ -56,11 +63,11 @@ class _DocumentTile extends StatelessWidget {
   const _DocumentTile({required this.document});
 
   IconData get _icon => switch (document.name.toLowerCase()) {
-        final n when n.contains('recibo') => Icons.receipt_long,
-        final n when n.contains('contrato') => Icons.description,
-        final n when n.contains('certificado') => Icons.workspace_premium,
-        _ => Icons.insert_drive_file,
-      };
+    final n when n.contains('recibo') => Icons.receipt_long,
+    final n when n.contains('contrato') => Icons.description,
+    final n when n.contains('certificado') => Icons.workspace_premium,
+    _ => Icons.insert_drive_file,
+  };
 
   String? get _subtitle {
     if (document.createdAt == null) return null;
@@ -88,10 +95,39 @@ class _DocumentTile extends StatelessWidget {
           style: TextStyle(color: colors.onPrimary, fontSize: 14),
         ),
         subtitle: _subtitle != null
-            ? Text(_subtitle!, style: TextStyle(color: AppColors.onPrimarySubtle, fontSize: 12))
+            ? Text(
+                _subtitle!,
+                style: TextStyle(
+                  color: AppColors.onPrimarySubtle,
+                  fontSize: 12,
+                ),
+              )
             : null,
-        trailing: Icon(Icons.open_in_new, size: 18, color: AppColors.onPrimarySubtle),
+        trailing: Icon(
+          Icons.open_in_new,
+          size: 18,
+          color: AppColors.onPrimarySubtle,
+        ),
         onTap: _open,
+      ),
+    );
+  }
+}
+
+class _DocumentsPlaceholder extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      itemCount: 4,
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      itemBuilder: (_, __) => const Card(
+        child: ListTile(
+          leading: Icon(Icons.insert_drive_file),
+          title: Text('Document name placeholder'),
+          subtitle: Text('01/01/2025'),
+          trailing: Icon(Icons.open_in_new, size: 18),
+        ),
       ),
     );
   }

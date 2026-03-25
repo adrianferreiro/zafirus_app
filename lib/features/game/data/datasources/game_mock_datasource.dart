@@ -1,12 +1,10 @@
-import 'dart:math';
-
 import '../models/active_round_model.dart';
 import '../models/leaderboard_entry_model.dart';
 import '../models/vote_result_model.dart';
 import 'game_datasource.dart';
 
 class GameMockDatasource implements GameDatasource {
-  bool _hasActiveRound = true;
+  final bool _hasActiveRound = true;
 
   @override
   Future<ActiveRoundModel?> getActiveRound() async {
