@@ -14,6 +14,7 @@ class LoginResponseModel with _$LoginResponseModel {
     @JsonKey(name: 'last_name') required String lastName,
     required String phone,
     required String email,
+    @JsonKey(name: 'must_change_pin') @Default(false) bool mustChangePin,
   }) = _LoginResponseModel;
 
   const LoginResponseModel._();
@@ -28,5 +29,6 @@ class LoginResponseModel with _$LoginResponseModel {
         lastName: lastName,
         phone: phone,
         email: email,
+        mustChangePin: mustChangePin,
       );
 }

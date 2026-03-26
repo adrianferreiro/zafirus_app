@@ -3,6 +3,8 @@ import '../models/login_response_model.dart';
 import 'auth_datasource.dart';
 
 class AuthMockDatasource implements AuthDatasource {
+  bool _mustChangePin = false;
+
   @override
   Future<LoginResponseModel> login({
     required String username,
@@ -11,16 +13,20 @@ class AuthMockDatasource implements AuthDatasource {
     await Future.delayed(const Duration(seconds: 1));
 
     if (pin == '000000') {
-      throw const ServerException(message: 'Credenciales inválidas', statusCode: 401);
+      throw const ServerException(
+        message: 'Credenciales inválidas',
+        statusCode: 401,
+      );
     }
 
-    return const LoginResponseModel(
+    return LoginResponseModel(
       token: 'mock_token_abc123',
       employeeId: 1001,
       name: 'Juan',
       lastName: 'Pérez',
       phone: '+595981123456',
       email: 'juan@example.com',
+      mustChangePin: _mustChangePin,
     );
   }
 
@@ -29,13 +35,14 @@ class AuthMockDatasource implements AuthDatasource {
     await Future.delayed(const Duration(seconds: 1));
 
     if (token == 'mock_token_abc123') {
-      return const LoginResponseModel(
+      return LoginResponseModel(
         token: 'mock_token_abc123',
         employeeId: 1001,
         name: 'Juan',
         lastName: 'Pérez',
         phone: '+595981123456',
         email: 'juan@example.com',
+        mustChangePin: _mustChangePin,
       );
     }
 
@@ -45,5 +52,23 @@ class AuthMockDatasource implements AuthDatasource {
   @override
   Future<void> logout(String token) async {
     await Future.delayed(const Duration(milliseconds: 500));
+  }
+
+  @override
+  Future<void> changePin({
+    required String token,
+    required String currentPin,
+    required String newPin,
+  }) async {
+    await Future.delayed(const Duration(seconds: 1));
+
+    if (currentPin == '000000') {
+      throw const ServerException(
+        message: 'PIN actual incorrecto',
+        statusCode: 400,
+      );
+    }
+
+    _mustChangePin = false;
   }
 }

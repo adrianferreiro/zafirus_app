@@ -7,6 +7,7 @@ class Endpoints {
   static const String login = '$_apiVersion/auth/login';
   static const String validateToken = '$_apiVersion/auth/validate-token';
   static const String logout = '$_apiVersion/auth/logout';
+  static const String changePin = '$_apiVersion/auth/change-pin';
 
   // Employee
   static String employee(int id) => '$_apiVersion/employees/$id';

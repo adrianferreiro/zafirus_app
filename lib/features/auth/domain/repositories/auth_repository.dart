@@ -12,4 +12,9 @@ abstract class AuthRepository {
   Future<Either<Failure, UserEntity>> validateToken();
 
   Future<Either<Failure, void>> logout();
+
+  Future<Either<Failure, void>> changePin({
+    required String currentPin,
+    required String newPin,
+  });
 }

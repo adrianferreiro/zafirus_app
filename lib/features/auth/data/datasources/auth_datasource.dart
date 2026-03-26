@@ -9,4 +9,10 @@ abstract class AuthDatasource {
   Future<LoginResponseModel> validateToken(String token);
 
   Future<void> logout(String token);
+
+  Future<void> changePin({
+    required String token,
+    required String currentPin,
+    required String newPin,
+  });
 }

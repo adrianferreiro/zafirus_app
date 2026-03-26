@@ -38,7 +38,7 @@ class AppTheme {
       surfaceContainerHighest: AppColors.surfaceLight,
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.primary,
+      backgroundColor: AppColors.primaryDark,
       foregroundColor: AppColors.onPrimary,
     ),
     drawerTheme: const DrawerThemeData(

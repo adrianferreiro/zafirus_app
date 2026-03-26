@@ -60,4 +60,24 @@ class AuthRemoteDatasource implements AuthDatasource {
       );
     }
   }
+
+  @override
+  Future<void> changePin({
+    required String token,
+    required String currentPin,
+    required String newPin,
+  }) async {
+    try {
+      await _client.dio.post(
+        Endpoints.changePin,
+        data: {'current_pin': currentPin, 'new_pin': newPin},
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+    } on DioException catch (e) {
+      throw ServerException(
+        message: e.response?.data?['message']?.toString() ?? 'Error al cambiar PIN',
+        statusCode: e.response?.statusCode,
+      );
+    }
+  }
 }

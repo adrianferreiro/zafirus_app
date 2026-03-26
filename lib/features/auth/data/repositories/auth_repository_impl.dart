@@ -60,4 +60,25 @@ class AuthRepositoryImpl implements AuthRepository {
       return const Right(null);
     }
   }
+
+  @override
+  Future<Either<Failure, void>> changePin({
+    required String currentPin,
+    required String newPin,
+  }) async {
+    try {
+      final token = await _storage.read(StorageKeys.token);
+      if (token == null) return const Left(ServerFailure(message: 'Sin sesión'));
+      await _datasource.changePin(
+        token: token,
+        currentPin: currentPin,
+        newPin: newPin,
+      );
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: 'Error inesperado'));
+    }
+  }
 }

@@ -11,5 +11,6 @@ class UserEntity with _$UserEntity {
     required String lastName,
     required String phone,
     required String email,
+    @Default(false) bool mustChangePin,
   }) = _UserEntity;
 }

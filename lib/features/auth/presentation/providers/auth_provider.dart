@@ -8,6 +8,7 @@ import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../../domain/usecases/change_pin_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/validate_token_usecase.dart';
@@ -39,6 +40,10 @@ final validateTokenUseCaseProvider = Provider<ValidateTokenUseCase>(
 
 final logoutUseCaseProvider = Provider<LogoutUseCase>(
   (ref) => LogoutUseCase(ref.read(authRepositoryProvider)),
+);
+
+final changePinUseCaseProvider = Provider<ChangePinUseCase>(
+  (ref) => ChangePinUseCase(ref.read(authRepositoryProvider)),
 );
 
 // Notifier

@@ -47,7 +47,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ref.listen<LoginState>(loginProvider, (_, next) {
       next.maybeWhen(
         error: (message) => AppToast.error(context, message: message),
-        success: (_) => context.go(AppRouter.home),
+        success: (user) => context.go(
+          user.mustChangePin ? AppRouter.changePinMandatory : AppRouter.home,
+        ),
         orElse: () {},
       );
     });

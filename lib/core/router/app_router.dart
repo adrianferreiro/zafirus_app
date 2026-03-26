@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/presentation/screens/change_pin_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/splash_screen.dart';
 import '../../features/documents/presentation/screens/documents_screen.dart';
@@ -18,6 +19,8 @@ class AppRouter {
   static const String documents = '/documents';
   static const String leaderboard = '/leaderboard';
   static const String play = '/play';
+  static const String changePin = '/change-pin';
+  static const String changePinMandatory = '/change-pin-mandatory';
 
   static final router = GoRouter(
     initialLocation: splash,
@@ -49,6 +52,14 @@ class AppRouter {
       GoRoute(
         path: play,
         builder: (context, state) => const PlayScreen(),
+      ),
+      GoRoute(
+        path: changePin,
+        builder: (context, state) => const ChangePinScreen(),
+      ),
+      GoRoute(
+        path: changePinMandatory,
+        builder: (context, state) => const ChangePinScreen(mandatory: true),
       ),
     ],
   );

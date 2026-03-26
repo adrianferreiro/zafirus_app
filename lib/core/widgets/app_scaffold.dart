@@ -39,7 +39,7 @@ class AppScaffold extends StatelessWidget {
           ? AppBar(
               title: Text(title!),
               actions: actions,
-              backgroundColor: Colors.transparent,
+              backgroundColor: AppColors.primaryDark,
               elevation: 0,
             )
           : null,

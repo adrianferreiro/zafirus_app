@@ -93,6 +93,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               },
             ),
             ListTile(
+              leading: const Icon(Icons.lock_reset),
+              title: const Text('Cambiar PIN'),
+              onTap: () {
+                Navigator.of(context).pop();
+                context.push(AppRouter.changePin);
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Cerrar sesión'),
               onTap: () {

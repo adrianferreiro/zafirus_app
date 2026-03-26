@@ -28,7 +28,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       (_) => context.go(AppRouter.login),
       (user) {
         ref.read(currentUserProvider.notifier).state = user;
-        context.go(AppRouter.home);
+        context.go(
+          user.mustChangePin ? AppRouter.changePinMandatory : AppRouter.home,
+        );
       },
     );
   }
