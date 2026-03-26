@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/app_toast.dart';
+import '../../../../core/widgets/app_scaffold.dart';
 import '../../../../core/widgets/app_state_handler.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../birthdays/domain/entities/birthday_entity.dart';
@@ -42,8 +43,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ? '${user.name[0]}${user.lastName[0]}'.toUpperCase()
         : '??';
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Inicio')),
+    return AppScaffold(
+      title: 'Inicio',
+      useGradient: true,
       drawer: Drawer(
         child: Column(
           children: [
@@ -80,6 +82,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               onTap: () {
                 Navigator.of(context).pop();
                 context.push(AppRouter.profile);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.folder_outlined),
+              title: const Text('Documentos'),
+              onTap: () {
+                Navigator.of(context).pop();
+                context.push(AppRouter.documents);
               },
             ),
             ListTile(
@@ -137,16 +147,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 crossAxisSpacing: 16,
                 childAspectRatio: 1.3,
                 children: [
-                  _QuickCard(
-                    icon: Icons.person_outline,
-                    label: 'Mi Perfil',
-                    onTap: () => context.push(AppRouter.profile),
-                  ),
-                  _QuickCard(
-                    icon: Icons.folder_outlined,
-                    label: 'Documentos',
-                    onTap: () => context.push(AppRouter.documents),
-                  ),
                   _QuickCard(
                     icon: Icons.emoji_events_outlined,
                     label: 'Ranking',
@@ -336,10 +336,7 @@ class _BirthdayListPlaceholder extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Nombre aqui'),
-                Text('Posición'),
-              ],
+              children: [Text('Nombre aqui'), Text('Posición')],
             ),
           ],
         ),

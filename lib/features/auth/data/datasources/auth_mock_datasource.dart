@@ -1,3 +1,4 @@
+import '../../../../core/errors/exceptions.dart';
 import '../models/login_response_model.dart';
 import 'auth_datasource.dart';
 
@@ -10,7 +11,7 @@ class AuthMockDatasource implements AuthDatasource {
     await Future.delayed(const Duration(seconds: 1));
 
     if (pin == '000000') {
-      throw Exception('Credenciales inválidas');
+      throw const ServerException(message: 'Credenciales inválidas', statusCode: 401);
     }
 
     return const LoginResponseModel(
@@ -38,7 +39,7 @@ class AuthMockDatasource implements AuthDatasource {
       );
     }
 
-    throw Exception('Token inválido');
+    throw const ServerException(message: 'Token inválido', statusCode: 401);
   }
 
   @override

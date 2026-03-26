@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/utils/app_toast.dart';
+import '../../../../core/widgets/app_scaffold.dart';
 import '../providers/auth_provider.dart';
 import '../providers/login_state.dart';
 
@@ -51,7 +52,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       );
     });
 
-    return Scaffold(
+    return AppScaffold(
+      useGradient: true,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
