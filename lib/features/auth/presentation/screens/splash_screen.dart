@@ -38,7 +38,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      useGradient: true,
+      useGradient: false,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,

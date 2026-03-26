@@ -55,7 +55,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     return AppScaffold(
-      useGradient: true,
+      useGradient: false,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
